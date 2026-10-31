@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // AI Studio environment: HMR is disabled. Provide a clean virtual WebSocket for Vite HMR to prevent connection errors.
+      (function() {
+        if (typeof window === 'undefined') return;
+
+        // Suppress harmless Vite HMR WebSocket closed messages in console.error
+        var origConsoleError = console.error;
+        console.error = function() {
+          for (var i = 0; i < arguments.length; i++) {
+            var arg = arguments[i];
+            var str = (arg && (arg.stack || arg.message)) ? String(arg.stack || arg.message) : String(arg);
+            if (str.indexOf('WebSocket closed without opened') !== -1 || 
+                str.indexOf('server connection lost') !== -1 || 
+                (str.indexOf('[vite]') !== -1 && str.indexOf('WebSocket') !== -1)) {
+              return;
+            }
+          }
+          return origConsoleError.apply(console, arguments);
+        };
+
+        // Suppress window error events related to Vite HMR WebSocket
+        window.addEventListener('error', function(event) {
+          var msg = (event && (event.message || (event.error && (event.error.message || event.error.stack)))) || '';
+          if (msg.indexOf('WebSocket closed') !== -1 || msg.indexOf('@vite/client') !== -1) {
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            if (event.preventDefault) event.preventDefault();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event.reason && (event.reason.message || event.reason.stack || String(event.reason));
+          if (reason && (reason.indexOf('WebSocket') !== -1 || reason.indexOf('@vite/client') !== -1)) {
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            if (event.preventDefault) event.preventDefault();
+          }
+        }, true);
+
+        // Virtual WebSocket handler for Vite HMR to prevent failed connection errors in Cloud Run
+        var RealWebSocket = window.WebSocket;
+        if (!RealWebSocket) return;
+
+        function isViteHmr(url, protocols) {
+          if (protocols === 'vite-hmr') return true;
+          if (Array.isArray(protocols) && protocols.indexOf('vite-hmr') !== -1) return true;
+          if (typeof url === 'string' && (url.indexOf('vite-hmr') !== -1 || url.indexOf('/@vite') !== -1)) return true;
+          return false;
+        }
+
+        window.WebSocket = function(url, protocols) {
+          if (isViteHmr(url, protocols)) {
+            var listeners = {};
+            var fakeSocket = {
+              CONNECTING: 0,
+              OPEN: 1,
+              CLOSING: 2,
+              CLOSED: 3,
+              readyState: 1,
+              bufferedAmount: 0,
+              extensions: '',
+              protocol: 'vite-hmr',
+              url: String(url),
+              binaryType: 'blob',
+              addEventListener: function(type, listener) {
+                if (!listeners[type]) listeners[type] = [];
+                listeners[type].push(listener);
+                if (type === 'open') {
+                  setTimeout(function() {
+                    try {
+                      if (typeof fakeSocket.onopen === 'function') fakeSocket.onopen({ type: 'open', target: fakeSocket });
+                      listener({ type: 'open', target: fakeSocket });
+                    } catch(_) {}
+                  }, 0);
+                }
+              },
+              removeEventListener: function(type, listener) {
+                if (!listeners[type]) return;
+                var idx = listeners[type].indexOf(listener);
+                if (idx !== -1) listeners[type].splice(idx, 1);
+              },
+              dispatchEvent: function(event) {
+                var list = listeners[event.type] || [];
+                for (var i = 0; i < list.length; i++) {
+                  try { list[i](event); } catch(_) {}
+                }
+                return true;
+              },
+              send: function() {},
+              close: function() {
+                fakeSocket.readyState = 3;
+                var closeEvt = { type: 'close', wasClean: true, code: 1000, reason: 'Normal Closure', target: fakeSocket };
+                if (typeof fakeSocket.onclose === 'function') {
+                  try { fakeSocket.onclose(closeEvt); } catch(_) {}
+                }
+                var list = listeners['close'] || [];
+                for (var i = 0; i < list.length; i++) {
+                  try { list[i](closeEvt); } catch(_) {}
+                }
+              },
+              onopen: null,
+              onclose: null,
+              onerror: null,
+              onmessage: null
+            };
+            return fakeSocket;
+          }
+          return new RealWebSocket(url, protocols);
+        };
+
+        window.WebSocket.prototype = RealWebSocket.prototype;
+        window.WebSocket.CONNECTING = 0;
+        window.WebSocket.OPEN = 1;
+        window.WebSocket.CLOSING = 2;
+        window.WebSocket.CLOSED = 3;
+      })();
+    </script>
+    <title>Remix المكتبة الجغرافية والتربوية الذكية</title>
+    <meta name="description" content="منصة رقمية متكاملة للمعلمين لإدارة الكتب والمراجع الجغرافية والتربوية، والبحث الذكي، وتوليد الدروس والأنشطة والاختبارات الموثقة بالمصادر." />
+    <meta property="og:title" content="Remix المكتبة الجغرافية والتربوية الذكية" />
+    <meta property="og:description" content="منصة رقمية متكاملة للمعلمين لإدارة الكتب والمراجع الجغرافية والتربوية، والبحث الذكي، وتوليد الدروس والأنشطة والاختبارات الموثقة بالمصادر." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#104f55" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="المكتبة الذكية" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- CesiumJS 3D Globe Engine for Oman Water Atlas -->
+    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css">
+    <script>
+      window.CESIUM_BASE_URL = 'https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/';
+    </script>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js" defer></script>
+  </head>
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen antialiased selection:bg-teal-600 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

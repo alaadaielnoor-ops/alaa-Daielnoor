@@ -1,0 +1,8 @@
+{
+  "name": "Remix المكتبة الجغرافية والتربوية الذكية",
+  "description": "منصة رقمية متكاملة للمعلمين لإدارة الكتب والمراجع الجغرافية والتربوية، والبحث الذكي، وتوليد الدروس والأنشطة والاختبارات الموثقة بالمصادر.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
